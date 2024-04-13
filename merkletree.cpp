@@ -3,52 +3,59 @@
 #include <string>
 #include <algorithm>
 
-//how to complie, cd "folder name where youll save file, for me it was 'Desktop'. " 
-//  g++ -std=c++17 merkletree.cpp -o merkletree
-//  ./merkletree
+// read and write .txt files
+#include <fstream>
+#include <sstream>
+
+// how to complie, cd "folder name where youll save file, for me it was 'Desktop'. "
+//   g++ -std=c++17 merkletree.cpp -o merkletree
+//   ./merkletree
 
 template <typename T>
-int hashFunction(const T& data) 
+int hashFunction(const T &data)
 {
-    if constexpr (std::is_same_v<T, int>)       //hash function for integers
+    if constexpr (std::is_same_v<T, int>) // hash function for integers
     {
-        return data * 2; 
-    } 
+        return data * 2;
+    }
 
-    else if constexpr (std::is_same_v<T, float>)    //hash function for floats
+    else if constexpr (std::is_same_v<T, float>) // hash function for floats
     {
-        return int(data) * 2; 
-    } 
+        return int(data) * 2;
+    }
 
-    else if constexpr (std::is_same_v<T, std::string>)    // hash function for strings
+    else if constexpr (std::is_same_v<T, std::string>) // hash function for strings
     {
         int hash = 0;
-        for (char c : data) 
+        for (char c : data)
         {
             hash += static_cast<int>(c);
         }
-        return hash; 
-    } 
+        return hash;
+    }
 
-    else {std::cout<<"unsupported data type"<<std::endl;}
+    else
+    {
+        std::cout << "unsupported data type" << std::endl;
+    }
 }
 
 template <typename T>
 
-struct Node 
+struct Node
 {
     int hash;
-    Node* left;
-    Node* right;
+    Node *left;
+    Node *right;
 
-    Node(const T& data) 
+    Node(const T &data) // when creating a node
     {
         hash = hashFunction(data);
         left = nullptr;
         right = nullptr;
     }
 
-    Node(Node* l, Node* r) 
+    Node(Node *l, Node *r) // when combining two nodes to make their parent
     {
         hash = l->hash + r->hash; // Combine hashes by summing.
         left = l;
@@ -57,13 +64,13 @@ struct Node
 };
 template <typename T>
 
-class MerkleTree 
+class MerkleTree
 {
 private:
-    Node<T>* root;
+    Node<T> *root;
     int originalRootHash;
 
-    Node<T>* buildTree(std::vector<T>& data, int start, int end)
+    Node<T> *buildTree(std::vector<T> &data, int start, int end)
     {
         if (start == end)
         {
@@ -71,21 +78,21 @@ private:
         }
 
         int mid = (start + end) / 2;
-        Node<T>* left = buildTree(data, start, mid);
-        Node<T>* right = buildTree(data, mid + 1, end);
+        Node<T> *left = buildTree(data, start, mid);
+        Node<T> *right = buildTree(data, mid + 1, end);
 
         return new Node<T>(left, right);
     }
 
-    Node<T>* searchNode(Node<T>* node, const T& value) 
+    Node<T> *searchNode(Node<T> *node, const T &value)
     {
-        if (node == nullptr || node->hash == hashFunction(value)) 
+        if (node == nullptr || node->hash == hashFunction(value))
         {
             return node;
         }
 
-        Node<T>* leftResult = searchNode(node->left, value);
-        if (leftResult != nullptr) 
+        Node<T> *leftResult = searchNode(node->left, value);
+        if (leftResult != nullptr)
         {
             return leftResult;
         }
@@ -93,54 +100,54 @@ private:
         return searchNode(node->right, value);
     }
 
-    void deleteSubtree(Node<T>* node) 
+    void deleteSubtree(Node<T> *node)
     {
-        if (node == nullptr) 
+        if (node == nullptr)
         {
             return; // do nothing as nothing to delete.
-        } 
+        }
         deleteSubtree(node->left);
         deleteSubtree(node->right);
         delete node;
     }
 
-    void updateHash(Node<T>* node) 
+    void updateHash(Node<T> *node)
     {
-        if (node == nullptr) 
+        if (node == nullptr)
         {
             return;
         }
 
-        if (node->left != nullptr && node->right != nullptr) 
+        if (node->left != nullptr && node->right != nullptr)
         {
             node->hash = node->left->hash + node->right->hash;
-        } 
+        }
 
-        else if (node->left != nullptr) 
+        else if (node->left != nullptr)
         {
             node->hash = node->left->hash;
-        } 
-        
-        else if (node->right != nullptr) 
+        }
+
+        else if (node->right != nullptr)
         {
             node->hash = node->right->hash;
         }
     }
 
-    Node<T>* findNodeParent(Node<T>* parent, Node<T>* nodeToDelete) 
+    Node<T> *findNodeParent(Node<T> *parent, Node<T> *nodeToDelete)
     {
-        if (parent == nullptr) 
+        if (parent == nullptr)
         {
             return nullptr;
         }
 
         if (parent->left == nodeToDelete || parent->right == nodeToDelete)
-         {
+        {
             return parent;
         }
 
-        Node<T>* leftResult = findNodeParent(parent->left, nodeToDelete);
-        if (leftResult != nullptr) 
+        Node<T> *leftResult = findNodeParent(parent->left, nodeToDelete);
+        if (leftResult != nullptr)
         {
             return leftResult;
         }
@@ -148,10 +155,10 @@ private:
         return findNodeParent(parent->right, nodeToDelete);
     }
 
-    void rehashParentNodes(Node<T>* startNode) 
+    void rehashParentNodes(Node<T> *startNode)
     {
-        Node<T>* current = startNode;
-        while (current != nullptr) 
+        Node<T> *current = startNode;
+        while (current != nullptr)
         {
             updateHash(current);
             current = findNodeParent(root, current);
@@ -159,42 +166,42 @@ private:
     }
 
 public:
-    MerkleTree(std::vector<T>& data) 
+    MerkleTree(std::vector<T> &data)
     {
         root = buildTree(data, 0, data.size() - 1);
         originalRootHash = root->hash;
     }
 
-    ~MerkleTree() 
+    ~MerkleTree()
     {
         deleteSubtree(root);
     }
 
-    void deleteValue(const T& value) 
+    void deleteValue(const T &value)
     {
-        Node<T>* nodeToDelete = searchNode(root, value);
-        if (nodeToDelete == nullptr) 
+        Node<T> *nodeToDelete = searchNode(root, value);
+        if (nodeToDelete == nullptr)
         {
             std::cout << "The value that you are trying to delete is not in the tree!" << std::endl;
             return;
         }
 
-        Node<T>* parent = findNodeParent(root, nodeToDelete);
+        Node<T> *parent = findNodeParent(root, nodeToDelete);
 
-        if (parent != nullptr) 
+        if (parent != nullptr)
         {
             if (parent->left == nodeToDelete)
             {
                 parent->left = nullptr;
             }
-            
-            else 
+
+            else
             {
                 parent->right = nullptr;
             }
-        } 
-        
-        else 
+        }
+
+        else
         {
             deleteSubtree(root);
             root = nullptr;
@@ -203,48 +210,76 @@ public:
         rehashParentNodes(parent);
     }
 
-    bool verifyDataIntegrity() 
+    bool verifyDataIntegrity()
     {
         return root->hash == originalRootHash;
     }
 
-    int getRootHash() 
+    int getRootHash()
     {
         return root->hash;
     }
 };
 
-int main() {
+int main()
+{
 
-    //int merkle tree
+    // int merkle tree
+    std::ifstream file("data_set.csv");
+    if (!file.is_open())
+    {
+        std::cerr << "Error ! unable to open the file. \n";
+        return 1;
+    }
 
-    std::vector<int> data = {1, 2, 3, 4, 5, 6, 7};
+    std::cout << "Reading from file" << std::endl;
+    std::string line;
+
+    std::vector<int> data;
+
+    int value;
+    bool firstLine = true;
+    while (std::getline(file, line))
+    {
+        if (firstLine)
+        {
+            firstLine = false;
+            continue;
+        }
+        std::stringstream ss(line);
+        std::string token;
+        while (std::getline(ss, token, ','))
+        {
+
+            value = std::stof(token);
+            data.push_back(value);
+        }
+    }
+
     MerkleTree<int> intTree(data);
 
     std::cout << "Root hash before deletion: " << intTree.getRootHash() << std::endl;
 
-    //int valueToDelete = 8; // case where val not in tree. gives error messege and integrity remians protected.
-    int valueToDelete = 7; //deletes value but integrity compromised!
+    // int valueToDelete = 8; // case where val not in tree. gives error messege and integrity remians protected.
+    int valueToDelete = 7; // deletes value but integrity compromised!
     intTree.deleteValue(valueToDelete);
 
     std::cout << "Root hash after deletion of " << valueToDelete << ": " << intTree.getRootHash() << std::endl;
     std::cout << "Data integrity verified after deletion: " << (intTree.verifyDataIntegrity() ? "Yes" : "No") << std::endl;
 
-
-    //string merkle tree 
+    // string merkle tree
 
     std::vector<std::string> strData = {"hello", "world", "merkle", "tree"};
     MerkleTree<std::string> strTree(strData);
 
     std::cout << "Root hash of string tree: " << strTree.getRootHash() << std::endl;
 
-    //std::string val = "hell"; // case where val not in tree. gives error messege and integrity remians protected.
-    std::string val = "hello"; //deletes value but integrity compromised!
+    // std::string val = "hell"; // case where val not in tree. gives error messege and integrity remians protected.
+    std::string val = "hello"; // deletes value but integrity compromised!
     strTree.deleteValue(val);
 
     std::cout << "Root hash after deletion of " << valueToDelete << ": " << strTree.getRootHash() << std::endl;
     std::cout << "Data integrity verified after deletion: " << (strTree.verifyDataIntegrity() ? "Yes" : "No") << std::endl;
-
 
     return 0;
 }
