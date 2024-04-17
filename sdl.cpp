@@ -1,120 +1,77 @@
-//Using SDL and standard IO
-#include <SDL.h>
-#include <SDL_image.h> // Include SDL_image header
-#include <stdio.h>
-#include <iostream>
+#include "sdl.hpp"
 
-//Screen dimension constants
-const int SCREEN_WIDTH = 1400;
-const int SCREEN_HEIGHT = 788;
-
-//Starts up SDL and creates window
-bool init();
-
-//Loads media
-bool loadMedia();
-
-//Frees media and shuts down SDL
-void close();
-
-//The window we'll be rendering to
-SDL_Window* gWindow = NULL;
-	
-//The surface contained by the window
-SDL_Surface* gScreenSurface = NULL;
-
-//The image we will load and show on the screen
-SDL_Surface* gMerkleTree = NULL;
-
-bool init()
-{
-	//Initialization flag
-	bool success = true;
-
-	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
-	{
-		printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
-		success = false;
-	}
-	else
-	{
-		//Create window
-		gWindow = SDL_CreateWindow( "Merkle Tree", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-		if( gWindow == NULL )
-		{
-			printf( "Window could not be created! SDL_Error: %s\n", SDL_GetError() );
-			success = false;
-		}
-		else
-		{
-			//Get window surface
-			gScreenSurface = SDL_GetWindowSurface( gWindow );
-		}
-	}
-
-	return success;
+SDLRenderer::SDLRenderer(int screenWidth, int screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight) {
+    window = NULL;
+    renderer = NULL;
 }
 
-bool loadMedia()
-{
-	//Loading success flag
-	bool success = true;
-
-	//Load splash image
-	gMerkleTree = IMG_Load(".\\images\\bg.jpg"); // Load JPG image with SDL_image
-	if( gMerkleTree == NULL )
-	{
-		printf( "Unable to load image %s! SDL Error: %s\n", ".\\images\\bg.jpg", SDL_GetError() );
-		success = false;
-	}
-
-	return success;
+SDLRenderer::~SDLRenderer() {
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 }
 
-void close()
-{
-	//Deallocate surface
-	SDL_FreeSurface( gMerkleTree );
-	gMerkleTree = NULL;
+bool SDLRenderer::init() {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
 
-	//Destroy window
-	SDL_DestroyWindow( gWindow );
-	gWindow = NULL;
+    window = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
+    if (window == NULL) {
+        std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
 
-	//Quit SDL subsystems
-	SDL_Quit();
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == NULL) {
+        std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    return true;
 }
 
-int main( int argc, char* args[] )
-{
-	//Start up SDL and create window
-	if( !init() )
-	{
-		printf( "Failed to initialize!\n" );
-	}
-	else
-	{
-		//Load media
-		if( !loadMedia() )
-		{
-			printf( "Failed to load media!\n" );
-		}
-		else
-		{
-			//Apply the image
-			SDL_BlitSurface( gMerkleTree, NULL, gScreenSurface, NULL );
-			
-			//Update the surface
-			SDL_UpdateWindowSurface( gWindow );
+void drawTree(Node<int>* node, int x, int y, int level, SDLRenderer& renderer) {
+    if (node == nullptr) {
+        return;
+    }
 
-            //Hack to get window to stay up
-            SDL_Event e; bool quit = false; while( quit == false ){ while( SDL_PollEvent( &e ) ){ if( e.type == SDL_QUIT ) quit = true; } }
-		}
-	}
+    // Draw node
+    renderer.drawRect(x, y, NODE_WIDTH, NODE_HEIGHT);
 
-	//Free resources and close SDL
-	close();
+    // Draw left child
+    if (node->left != nullptr) {
+        int childX = x - 100 / (1 << level); // Adjust x-coordinate based on level
+        int childY = y + 100; // Adjust y-coordinate for child node
+        renderer.drawLine(x + NODE_WIDTH / 2, y + NODE_HEIGHT, childX + NODE_WIDTH / 2, childY);
+        drawTree(node->left, childX, childY, level + 1, renderer);
+    }
 
-	return 0;
+    // Draw right child
+    if (node->right != nullptr) {
+        int childX = x + 100 / (1 << level); // Adjust x-coordinate based on level
+        int childY = y + 100; // Adjust y-coordinate for child node
+        renderer.drawLine(x + NODE_WIDTH / 2, y + NODE_HEIGHT, childX + NODE_WIDTH / 2, childY);
+        drawTree(node->right, childX, childY, level + 1, renderer);
+    }
+}
+
+void SDLRenderer::clear() {
+    SDL_RenderClear(renderer);
+}
+
+void SDLRenderer::present() {
+    SDL_RenderPresent(renderer);
+}
+
+void SDLRenderer::drawRect(int x, int y, int width, int height) {
+    SDL_Rect rect = { x, y, width, height };
+    SDL_RenderDrawRect(renderer, &rect);
+}
+
+void SDLRenderer::drawLine(int x1, int y1, int x2, int y2) {
+    SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
 }

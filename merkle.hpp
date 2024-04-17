@@ -1,14 +1,15 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <type_traits>
 
+// Forward declarations
+template <typename T> struct Node;
+template <typename T> class MerkleTree;
 
-template <typename T>   // Forward declaration of MerkleTree class
-class MerkleTree;
-
+// Definition of Node<T>
 template <typename T>
-struct Node             // Node structure for MerkleTree
-{
+struct Node {
     int hash;       // Hash value of the node
     Node *left;     // Pointer to the left child node
     Node *right;    // Pointer to the right child node
@@ -17,15 +18,13 @@ struct Node             // Node structure for MerkleTree
     Node(Node *l, Node *r); // Constructor for combining nodes
 
 private:
-    
     int hashFunction(const T &data);    // Private hash function for generating hash value
     friend class MerkleTree<T>;         // Allowing MerkleTree class to access private members
 };
 
-
+// Definition of MerkleTree<T>
 template <typename T>
-class MerkleTree            // MerkleTree class
-{
+class MerkleTree {
 private:
     Node<T> *root;          // Pointer to the root node
     int originalRootHash;   // Hash value of the original root node
@@ -45,4 +44,5 @@ public:
     void deleteValue(const T &value);       // Deletes a value
     bool verifyDataIntegrity();             // Verifies the integrity of the tree
     int getRootHash();                      // Returns the hash value of the root node
+    Node<T>* getRoot();                     // Returns the pointer to the root node
 };
