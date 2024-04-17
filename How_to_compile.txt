@@ -1,0 +1,10 @@
+How to complie:
+
+do: 
+cd "folder name where youll save file, for me it was 'Desktop'. "
+
+then:
+g++ -std=c++17 merkletree.cpp -o merkletree
+
+runn:
+./merkletree
