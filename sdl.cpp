@@ -1,11 +1,12 @@
 //Using SDL and standard IO
-#include <SDL2/SDL.h>
+#include <SDL.h>
+#include <SDL_image.h> // Include SDL_image header
 #include <stdio.h>
 #include <iostream>
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 1400;
+const int SCREEN_HEIGHT = 788;
 
 //Starts up SDL and creates window
 bool init();
@@ -61,10 +62,10 @@ bool loadMedia()
 	bool success = true;
 
 	//Load splash image
-	gMerkleTree = SDL_LoadBMP( "02_getting_an_image_on_the_screen/hello_world.bmp" );
+	gMerkleTree = IMG_Load(".\\images\\bg.jpg"); // Load JPG image with SDL_image
 	if( gMerkleTree == NULL )
 	{
-		printf( "Unable to load image %s! SDL Error: %s\n", "Merkle-Tree-DSA-Project\images\bg.jpg", SDL_GetError() );
+		printf( "Unable to load image %s! SDL Error: %s\n", ".\\images\\bg.jpg", SDL_GetError() );
 		success = false;
 	}
 
