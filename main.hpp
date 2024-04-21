@@ -1,14 +1,22 @@
+
+#ifndef MAIN_HPP
+#define MAIN_HPP
+
 #include <iostream>
 #include <vector>
 #include <string>
 #include <fstream>
 #include <sstream>
-#include "merkle.cpp"
+#include "merkle.hpp"
+#include "sdl.cpp"
 
-int main()
+// int main()
+
+int main_merkle()
 {
 
-    std::ifstream file("Crypto.csv");                           //reading data for int merkle tree
+    // main_sdl(); // calling sdl function
+    std::ifstream file("Crypto.csv"); // reading data for int merkle tree
     if (!file.is_open())
     {
         std::cerr << "Error ! unable to open the file. \n";
@@ -35,10 +43,9 @@ int main()
             data.push_back(value);
         }
     }
-    MerkleTree<int> intTree(data);                             //vector to be used in making int merkle tree
+    MerkleTree<int> intTree(data); // vector to be used in making int merkle tree
 
-
-    std::ifstream file2("Football_managers.csv");              //reading data for str merkle tree
+    std::ifstream file2("Football_managers.csv"); // reading data for str merkle tree
     if (!file2.is_open())
     {
         std::cerr << "Error ! unable to open the file. \n";
@@ -63,30 +70,30 @@ int main()
             strData.push_back(token2);
         }
     }
-    MerkleTree<std::string> strTree(strData);                  //vector to be used in making str merkle tree
+    MerkleTree<std::string> strTree(strData); // vector to be used in making str merkle tree
 
+    // int tree
 
-
-    //int tree
-
-    std::cout <<std::endl; 
-    std::cout << "Root hash before deletion int tree: " << intTree.getRootHash() << std::endl;         
-    //int valueToDelete = 88898889;         // case where val not in tree. gives error messege and integrity remians protected.
-    int valueToDelete = 14;                 // deletes value but integrity compromised!
+    std::cout << std::endl;
+    std::cout << "Root hash before deletion int tree: " << intTree.getRootHash() << std::endl;
+    // int valueToDelete = 88898889;         // case where val not in tree. gives error messege and integrity remians protected.
+    int valueToDelete = 14; // deletes value but integrity compromised!
     intTree.deleteValue(valueToDelete);
     std::cout << "Root hash after deletion of " << valueToDelete << ": " << intTree.getRootHash() << std::endl;
     std::cout << "Data integrity verified after deletion: " << (intTree.verifyDataIntegrity() ? "Yes" : "No") << std::endl;
 
+    // str tree
 
-    //str tree
-
-    std::cout <<std::endl; 
+    std::cout << std::endl;
     std::cout << "Root hash before deletion string tree: " << strTree.getRootHash() << std::endl;
-    //std::string val = "bob";             // case where val not in tree. gives error messege and integrity remians protected.
-    std::string val = " Wolves ";          // deletes value but integrity compromised! //7
+    // std::string val = "bob";             // case where val not in tree. gives error messege and integrity remians protected.
+    std::string val = " Wolves "; // deletes value but integrity compromised! //7
     strTree.deleteValue(val);
     std::cout << "Root hash after deletion of " << val << ": " << strTree.getRootHash() << std::endl;
-    std::cout << "Data integrity verified after deletion: " << (strTree.verifyDataIntegrity() ? "Yes" : "No") << std::endl<< std::endl;
+    std::cout << "Data integrity verified after deletion: " << (strTree.verifyDataIntegrity() ? "Yes" : "No") << std::endl
+              << std::endl;
 
     return 0;
-}
+};
+
+#endif

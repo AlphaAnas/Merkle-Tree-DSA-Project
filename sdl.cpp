@@ -3,6 +3,7 @@
 #include <SDL_image.h> // Include SDL_image header
 #include <stdio.h>
 #include <iostream>
+#include "main.hpp"
 
 // Screen dimension constants
 const int SCREEN_WIDTH = 640;
@@ -85,13 +86,50 @@ void close()
     // Quit SDL subsystems
     SDL_Quit();
 }
-
-int main(int argc, char *args[])
+void run()
 {
+    // Apply the image
+    SDL_BlitSurface(gMerkleTree, NULL, gScreenSurface, NULL);
+
+    // Update the surface
+    SDL_UpdateWindowSurface(gWindow);
+
+    // Hack to get window to stay up
+    SDL_Event e;
+    bool quit = false;
+    while (quit == false)
+    {
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+                quit = true;
+        }
+    }
+
+    //***********************draw the objects here********************
+    int i = 1;
+    std::cout << "outside of loop" << std::endl;
+    if (i == 1)
+    {
+
+        main_merkle();
+
+        i = 0;
+    }
+
+    //****************************************************************
+
+    SDL_Delay(200); // causes sdl engine to delay for specified miliseconds
+}
+
+int main()
+{
+    std::cout << "main function" << std::endl;
     // Start up SDL and create window
     if (!init())
     {
         printf("Failed to initialize!\n");
+        return 1;
     }
     else
     {
@@ -102,23 +140,7 @@ int main(int argc, char *args[])
         }
         else
         {
-            // Apply the image
-            SDL_BlitSurface(gMerkleTree, NULL, gScreenSurface, NULL);
-
-            // Update the surface
-            SDL_UpdateWindowSurface(gWindow);
-
-            // Hack to get window to stay up
-            SDL_Event e;
-            bool quit = false;
-            while (quit == false)
-            {
-                while (SDL_PollEvent(&e))
-                {
-                    if (e.type == SDL_QUIT)
-                        quit = true;
-                }
-            }
+            run();
         }
     }
 
