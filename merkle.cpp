@@ -21,31 +21,33 @@ Node<T>::Node(Node *l, Node *r)
 template <typename T>
 int Node<T>::hashFunction(const T &data)
 {
-    if constexpr (std::is_same_v<T, int>)                   // hash function for integers
-    {
-        return data;
-    }
-    else if constexpr (std::is_same_v<T, float>)            // hash function for floats
-    {
-        return static_cast<int>(data);
-    }
-    else if constexpr (std::is_same_v<T, std::string>)      // hash function for strings
-    {
-        int hash = 0;
-        for (char c : data)
-        {
-            hash += static_cast<int>(c);
-        }
-        return hash;
-    }
-    else
-    {
-        std::cout << "unsupported data type" << std::endl;
-        return 0;
-    }
+    return data;
+
+    // if constexpr (std::is_same_v<T, int>) // hash function for integers
+    // {
+    //     return data;
+    // }
+    // else if constexpr (std::is_same_v<T, float>) // hash function for floats
+    // {
+    //     return static_cast<int>(data);
+    // }
+    // else if constexpr (std::is_same_v<T, std::string>) // hash function for strings
+    // {
+    //     int hash = 0;
+    //     for (char c : data)
+    //     {
+    //         hash += static_cast<int>(c);
+    //     }
+    //     return hash;
+    // }
+    // else
+    // {
+    //     std::cout << "unsupported data type" << std::endl;
+    //     return 0;
+    // }
 }
 
-//constructor
+// constructor
 template <typename T>
 MerkleTree<T>::MerkleTree(std::vector<T> &data)
 {
@@ -53,14 +55,14 @@ MerkleTree<T>::MerkleTree(std::vector<T> &data)
     originalRootHash = root->hash;
 }
 
-//destructor
+// destructor
 template <typename T>
 MerkleTree<T>::~MerkleTree()
 {
     deleteSubtree(root);
 }
 
-//deletes a value
+// deletes a value
 template <typename T>
 void MerkleTree<T>::deleteValue(const T &value)
 {
@@ -86,29 +88,28 @@ void MerkleTree<T>::deleteValue(const T &value)
     }
     else
     {
-        deleteSubtree(root);    //deletes value
-        root = nullptr;         //assigns it null
+        deleteSubtree(root); // deletes value
+        root = nullptr;      // assigns it null
     }
 
     rehashParentNodes(parent);
 }
 
-//verifies integrity by comparinf cureent hash value to old hash value!
+// verifies integrity by comparinf cureent hash value to old hash value!
 template <typename T>
 bool MerkleTree<T>::verifyDataIntegrity()
 {
     return root->hash == originalRootHash;
 }
 
-//getter
+// getter
 template <typename T>
 int MerkleTree<T>::getRootHash()
 {
     return root->hash;
 }
 
-
-//makes merkle tree recursively
+// makes merkle tree recursively
 template <typename T>
 Node<T> *MerkleTree<T>::buildTree(std::vector<T> &data, int start, int end)
 {
@@ -124,7 +125,7 @@ Node<T> *MerkleTree<T>::buildTree(std::vector<T> &data, int start, int end)
     return new Node<T>(left, right);
 }
 
-//node search recursively
+// node search recursively
 template <typename T>
 Node<T> *MerkleTree<T>::searchNode(Node<T> *node, const T &value)
 {
@@ -142,7 +143,7 @@ Node<T> *MerkleTree<T>::searchNode(Node<T> *node, const T &value)
     return searchNode(node->right, value);
 }
 
-//deletes subtree
+// deletes subtree
 template <typename T>
 void MerkleTree<T>::deleteSubtree(Node<T> *node)
 {
@@ -216,7 +217,7 @@ void MerkleTree<T>::rehashParentNodes(Node<T> *startNode)
 // Explicit template instantiation - the types we'll be using.
 template class Node<int>;
 template class Node<float>;
-template class Node<std::string>;
+template class Node<char>;
 template class MerkleTree<int>;
-template class MerkleTree<float>;
-template class MerkleTree<std::string>;
+// template class MerkleTree<float>;
+// template class MerkleTree<std::string>;
