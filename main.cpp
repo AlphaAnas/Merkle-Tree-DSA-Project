@@ -7,12 +7,9 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include "merkle.hpp"
-#include "sdl.cpp"
+#include "merkle.cpp"
 
-// int main()
-
-int main_merkle()
+int main()
 {
 
     // main_sdl(); // calling sdl function
