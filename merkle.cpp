@@ -18,25 +18,127 @@ Node<T>::Node(Node *l, Node *r)
     right = r;
 }
 
+template<typename T>
+std::string Node<T>::sha256(int num){
+    std::string result;
+    //we convert the data to 256 bit binary so it can later be converted to 64 bit hex
+    result = intToBinaryString(num);   
+
+    //this function converts the data into a string of 64 bit hex
+    result = binaryToHex(result);
+
+    //these are default hard coded values. they are the first 32 bits of the square root of the first 8 prime numbers
+    //for eg the first prime number is 2 and sqrt(2) = 1.41421356237
+    //we take the fractional part of the number i.e. .41421356237
+    //convert the fractional part into binary 
+    //convert this binary to hex
+    std::vector<std::string> h = {
+    "6a09e667", "bb67ae85", "3c6ef372", "a54ff53a", 
+    "510e527f", "9b05688c", "1f83d9ab", "5be0cd19"
+    };
+
+    //call the repeatedHash function
+    result = repeatedHash(h,result);
+    //std::cout<< "sha256 caleld";
+    std::cout << (result) << std::endl;
+    return result;
+}
+
+template<typename T>
+std::string Node<T>::repeatedHash(std::vector<std::string>& values, std::string& data){
+
+    std::string final_hash="  ";
+    int initial = hexToDecimal(data);
+    std::vector<std::string> new_values;
+    int first = hexToDecimal(values[0]);
+    int first_answer = first / initial;
+    //std::cout <<"first answer is "<< first_answer<<std::endl;
+    new_values.push_back(decimalToHex(first_answer));
+    for (int i=1;i<8;i++){
+        //std::cout<< "going in loop"<<std::endl;
+        int temp1 = hexToDecimal(values[i]);
+        int temp2 = hexToDecimal(new_values[i-1]);
+        int answer = (temp1/temp2);
+        //std::cout << i << "is " << answer << std::endl;
+        new_values.push_back(decimalToHex(answer));
+    }
+    for (int i = 0; i < 8; i++) {
+    // If the size of new_values[i] is less than 8, pad zeros to the left
+        if (new_values[i].size() < 8) {
+            new_values[i] = std::string(8 - new_values[i].size(), '0') + new_values[i];
+        }
+        final_hash += new_values[i];
+    }
+    //std::cout<<final_hash<< std::endl;
+    return final_hash;
+}
+
+template<typename T>
+std::string Node<T>::intToBinaryString(int num) {
+    return std::bitset<sizeof(num) * 64>(num).to_string();
+}
+
+template<typename T>
+std::string Node<T>::decimalToHex(int decimal) {
+    //std::cout << "decimal to hex called" <<std::endl;
+    std::stringstream ss;
+    ss << std::hex << std::setw(2) << std::setfill('0') << decimal;
+    std::string hex = ss.str();
+    return hex;
+}
+
+template<typename T>
+int Node<T>::hexToDecimal(const std::string& hex) {
+    std::stringstream ss;
+    ss << std::hex << hex;
+    int decimal;
+    ss >> decimal;
+    //std::cout << "decimal is " <<decimal<<std::endl;
+    return decimal;
+}
+
+template<typename T>
+std::string Node<T>::binaryToHex(const std::string& binary) {
+    // Ensure the binary string length is a multiple of 4
+    int padding = binary.size() % 4;
+
+    std::stringstream hexStream;
+    for (size_t i = 0; i < binary.size(); i += 4) {
+        std::string nibble = binary.substr(i, 4);
+        int decimal = std::bitset<4>(nibble).to_ulong();
+        hexStream << std::hex << decimal;
+    }
+
+    return hexStream.str();
+};
+
 template <typename T>
 int Node<T>::hashFunction(const T &data)
-{
-    if constexpr (std::is_same_v<T, int>) // hash function for integers
+{ 
+    if constexpr (std::is_same_v<T, int>)                   // hash function for integers
     {
-        return data;
-    }
-    else if constexpr (std::is_same_v<T, float>) // hash function for floats
+        //sha256 function is given the key for eg key = 10
+        std::string result = (sha256(data));
+        int num = hexToDecimal(result);
+        return num;
+    } 
+    else if constexpr (std::is_same_v<T, float>)            // hash function for floats
     {
-        return static_cast<int>(data);
+        int temp = static_cast<int>(data);
+        std::string result = (sha256(temp));
+        int num = hexToDecimal(result);
+        return num;
     }
-    else if constexpr (std::is_same_v<T, std::string>) // hash function for strings
+    else if constexpr (std::is_same_v<T, std::string>)      // hash function for strings
     {
         int hash = 0;
         for (char c : data)
         {
             hash += static_cast<int>(c);
         }
-        return hash;
+        std::string result = (sha256(hash));
+        int num = hexToDecimal(result);
+        return num;
     }
     else
     {
@@ -45,7 +147,7 @@ int Node<T>::hashFunction(const T &data)
     }
 }
 
-// constructor
+//constructor
 template <typename T>
 MerkleTree<T>::MerkleTree(std::vector<T> &data)
 {
@@ -53,14 +155,14 @@ MerkleTree<T>::MerkleTree(std::vector<T> &data)
     originalRootHash = root->hash;
 }
 
-// destructor
+//destructor
 template <typename T>
 MerkleTree<T>::~MerkleTree()
 {
     deleteSubtree(root);
 }
 
-// deletes a value
+//deletes a value
 template <typename T>
 void MerkleTree<T>::deleteValue(const T &value)
 {
@@ -86,28 +188,29 @@ void MerkleTree<T>::deleteValue(const T &value)
     }
     else
     {
-        deleteSubtree(root); // deletes value
-        root = nullptr;      // assigns it null
+        deleteSubtree(root);    //deletes value
+        root = nullptr;         //assigns it null
     }
 
     rehashParentNodes(parent);
 }
 
-// verifies integrity by comparinf cureent hash value to old hash value!
+//verifies integrity by comparinf cureent hash value to old hash value!
 template <typename T>
 bool MerkleTree<T>::verifyDataIntegrity()
 {
     return root->hash == originalRootHash;
 }
 
-// getter
+//getter
 template <typename T>
 int MerkleTree<T>::getRootHash()
 {
     return root->hash;
 }
 
-// makes merkle tree recursively
+
+//makes merkle tree recursively
 template <typename T>
 Node<T> *MerkleTree<T>::buildTree(std::vector<T> &data, int start, int end)
 {
@@ -123,7 +226,7 @@ Node<T> *MerkleTree<T>::buildTree(std::vector<T> &data, int start, int end)
     return new Node<T>(left, right);
 }
 
-// node search recursively
+//node search recursively
 template <typename T>
 Node<T> *MerkleTree<T>::searchNode(Node<T> *node, const T &value)
 {
@@ -141,7 +244,7 @@ Node<T> *MerkleTree<T>::searchNode(Node<T> *node, const T &value)
     return searchNode(node->right, value);
 }
 
-// deletes subtree
+//deletes subtree
 template <typename T>
 void MerkleTree<T>::deleteSubtree(Node<T> *node)
 {
