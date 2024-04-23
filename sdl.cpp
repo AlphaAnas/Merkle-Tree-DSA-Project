@@ -3,6 +3,7 @@
 #include <SDL_image.h> // Include SDL_image header
 #include <stdio.h>
 #include <iostream>
+#include "main.cpp"
 
 // Screen dimension constants
 const int SCREEN_WIDTH = 640;
@@ -103,10 +104,6 @@ void keep_running()
 
 int main(int argc, char *args[])
 {
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
     // Start up SDL and create window
     if (!init())
     {
@@ -128,21 +125,7 @@ int main(int argc, char *args[])
             // Update the surface
             SDL_UpdateWindowSurface(gWindow);
 
-<<<<<<< Updated upstream
-            // Hack to get window to stay up
-            SDL_Event e;
-            bool quit = false;
-            while (quit == false)
-            {
-                while (SDL_PollEvent(&e))
-                {
-                    if (e.type == SDL_QUIT)
-                        quit = true;
-                }
-            }
-=======
             keep_running();
->>>>>>> Stashed changes
         }
     }
 
