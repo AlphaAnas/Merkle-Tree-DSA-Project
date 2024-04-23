@@ -85,9 +85,28 @@ void close()
     // Quit SDL subsystems
     SDL_Quit();
 }
+void keep_running()
+{
+    // Hack to get window to stay up
+    SDL_Event e;
+    bool quit = false;
+    // std::cin.get(); // take input from the user
+    while (quit == false)
+    {
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+                quit = true;
+        }
+    }
+}
 
 int main(int argc, char *args[])
 {
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     // Start up SDL and create window
     if (!init())
     {
@@ -102,12 +121,14 @@ int main(int argc, char *args[])
         }
         else
         {
+            main_merkle();
             // Apply the image
             SDL_BlitSurface(gMerkleTree, NULL, gScreenSurface, NULL);
 
             // Update the surface
             SDL_UpdateWindowSurface(gWindow);
 
+<<<<<<< Updated upstream
             // Hack to get window to stay up
             SDL_Event e;
             bool quit = false;
@@ -119,6 +140,9 @@ int main(int argc, char *args[])
                         quit = true;
                 }
             }
+=======
+            keep_running();
+>>>>>>> Stashed changes
         }
     }
 

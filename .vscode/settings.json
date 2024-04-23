@@ -48,6 +48,7 @@
     "typeinfo": "cpp",
     "cstdarg": "cpp",
     "sstream": "cpp",
-    "cinttypes": "cpp"
+    "cinttypes": "cpp",
+    "map": "cpp"
   }
 }
