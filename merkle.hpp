@@ -7,13 +7,14 @@
 #include <cstring>
 #include <iomanip>
 
+
 template <typename T>   // Forward declaration of MerkleTree class
 class MerkleTree;
 
 template <typename T>
 struct Node             // Node structure for MerkleTree
 {
-    int hash;       // Hash value of the node
+    long long hash;       // Hash value of the node
     Node *left;     // Pointer to the left child node
     Node *right;    // Pointer to the right child node
 
@@ -22,11 +23,11 @@ struct Node             // Node structure for MerkleTree
 
 private:
     
-    int hashFunction(const T &data);    // Private hash function for generating hash value
+    long long hashFunction(const T &data);    // Private hash function for generating hash value
     std::string intToBinaryString(int num);
     std::string binaryToHex(const std::string& binary);
     std::string repeatedHash(std::vector<std::string>& values, std::string& data);
-    int hexToDecimal(const std::string &data);
+    long long hexToDecimal(const std::string &data);
     std::string decimalToHex(int decimal);
     std::string sha256(int num);
     friend class MerkleTree<T>;         // Allowing MerkleTree class to access private members
@@ -38,7 +39,7 @@ class MerkleTree            // MerkleTree class
 {
 private:
     Node<T> *root;          // Pointer to the root node
-    int originalRootHash;   // Hash value of the original root node
+    long long originalRootHash;   // Hash value of the original root node
 
     // Private member functions
     Node<T> *buildTree(std::vector<T> &data, int start, int end);      // Builds the Merkle tree
@@ -54,5 +55,5 @@ public:
     ~MerkleTree();                          // Destructor
     void deleteValue(const T &value);       // Deletes a value
     bool verifyDataIntegrity();             // Verifies the integrity of the tree
-    int getRootHash();                      // Returns the hash value of the root node
+    long long getRootHash();                      // Returns the hash value of the root node
 };
