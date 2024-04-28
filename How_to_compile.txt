@@ -1,23 +1,10 @@
 How to complie:
 
-
-- Open this folder in VSCode
-- Open VSCode terminal and put this command to compile everything:
-
-	g++ sdl.cpp -IC:\mingw_dev_lib\include\SDL2 -LC:\mingw_dev_lib\lib -w -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -o sdl.exe
-
-  
-- Run the game by this command:
-
-	.\sdl.exe
-
-
-// command to run only merkle tree file
 do: 
 cd "folder name where youll save file, for me it was 'Desktop'. "
 
 then:
-g++ -std=c++17 merkletree.cpp -o merkletree
+g++ -std=c++17 main.cpp -o merkletree
 
 runn:
 ./merkletree
