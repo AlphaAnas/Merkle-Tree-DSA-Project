@@ -6,7 +6,7 @@
       "command": "C:\\mingw_dev_lib\\mingw\\mingw64\\bin\\g++.exe",
       "args": [
         "-g",
-        "sdl.cpp",
+        "main.cpp",
         "-IC:\\mingw_dev_lib\\include\\SDL2\\",
         "-LC:\\mingw_dev_lib\\lib",
         "-w",
